@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">QWERTY</string>
+    <string name="hello_round">as </string>
+    <string name="hello_square">as Square World!</string>
+    <string name="test">test</string>
+    <string name="log">Log Event</string>
+    <string name="syncInfo">Tap together to synchronise</string>
+    <string name="syncText">Synchronise</string>
+</resources>

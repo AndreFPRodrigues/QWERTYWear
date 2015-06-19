@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="spaceWidth">10px</dimen>
+    <dimen name="menuHeight">5px</dimen>
+    <dimen name="keyWidth">30dp</dimen>
+    <dimen name="keyHeight">40dp</dimen>
+    <dimen name="marginL">10dp</dimen>
+    <dimen name="marginAL">2px</dimen>
+    <dimen name="marginBot">30dp</dimen>
+
+</resources>
