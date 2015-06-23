@@ -21,38 +21,56 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textv"
+                android:id="@+id/target"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/hello_world"
+                android:textStyle="bold"
 
-                />
+                android:text="Target " />
+            <TextView
+                android:id="@+id/phrase"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="phrase"
+                android:layout_marginTop="16dp" />
+
 
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/marginTop"
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
+
             <TextView
-                android:id="@+id/trainingPhrase"
+                android:id="@+id/letter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="" />
+                android:text="a" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/marginTop"
+            android:gravity="center_horizontal|bottom"
+            android:orientation="vertical"
+            android:layout_gravity="bottom">
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start"
-                android:id="@+id/button"
-                android:onClick="start"
+                android:text="Next"
+                android:id="@+id/button2"
+                android:onClick="next"
                 android:layout_gravity="center_horizontal" />
         </LinearLayout>
 

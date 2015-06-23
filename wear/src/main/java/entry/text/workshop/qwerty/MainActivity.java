@@ -24,11 +24,12 @@ import com.google.android.gms.wearable.Wearable;
 import java.util.Collection;
 import java.util.HashSet;
 
-import storage.Logger;
 
 public class MainActivity extends Activity {
 
     private final String TO_READ = "toRead";
+    private final String IOLOG = "IOLog";
+
     private EditText editText;
     private StudyListener sl;
     private KeyboardQWERTY kq;
@@ -38,17 +39,18 @@ public class MainActivity extends Activity {
     private String phrase;
 
     private static String IOLog = "EventLog";
-    private Logger mEventLogger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+       // mEventLogger = new Logger(IOLog,50,System.currentTimeMillis(),Logger.FileFormat.txt);
+
         sl = new StudyListener();
+       // sl.setStudyListener(mEventLogger);
         Log.d("teste", "INIT");
         phrase = "";
         lastLetter="";
-        //mEventLogger = new Logger(IOLog,50,System.currentTimeMillis(),Logger.FileFormat.txt);
 
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
@@ -67,13 +69,9 @@ public class MainActivity extends Activity {
                             kq = new KeyboardQWERTY(container);
                         }
 
-                        //log touches
-                        if(mEventLogger!=null){
-                           // mEventLogger.writeAsync(motionEvent.getActionIndex() + ","+motionEvent.getAction() +","+motionEvent.getX() + "," +motionEvent.getY() + "," + motionEvent.getEventTime());
-                        }
 
                        // Log.d("teste", motionEvent.toString());
-
+                        sl.sendMessage(getApplicationContext(), IOLOG,motionEvent.getX() + "," +motionEvent.getY() + "," + motionEvent.getEventTime()+","+ motionEvent.getPressure() + ","+motionEvent.getSize() + ","+motionEvent.getAction() );
                         switch (motionEvent.getAction()) {
                             case MotionEvent.ACTION_DOWN:
                                 lastLetter = kq.getCharacter((int) motionEvent.getX(), (int) motionEvent.getY());
