@@ -1,13 +1,15 @@
 package entry.text.workshop.qwerty;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Handler;
-import android.speech.tts.TextToSpeech;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -18,19 +20,25 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
-import java.util.Locale;
 
-
-public class MainActivity extends ActionBarActivity implements MessageApi.MessageListener, GoogleApiClient.ConnectionCallbacks, NodeApi.NodeListener, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends ActionBarActivity implements  MessageApi.MessageListener, GoogleApiClient.ConnectionCallbacks, NodeApi.NodeListener, GoogleApiClient.OnConnectionFailedListener {
     private Handler mHandler;
-    private TextView tv;
-    private TextView tv_phrase;
+    private TextView letter;
+    private TextView phrase;
+    private TextView target;
+
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
     private final String TO_READ="toRead";
-    private TextToSpeech ttobj;
-    private String phrase;
-    private String lastLetter;
+
+    public static String ACTION_ZIPPED_FILES = "/logfile";
+    private static final long TIMEOUT_MS = 10000;
+    private static final String TAG = "QWERTY";
+    private  String username;
+    private Reader reader;
+    private StudyController stdc;
+    private Logging log;
+
     /**
      * Request code for launching the Intent to resolve Google Play services errors.
      */
@@ -41,10 +49,13 @@ public class MainActivity extends ActionBarActivity implements MessageApi.Messag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        tv = (TextView) findViewById(R.id.textv);
-        tv_phrase = (TextView) findViewById(R.id.phrase);
-        phrase="";
-        lastLetter="";
+        letter = (TextView) findViewById(R.id.textv);
+        phrase = (TextView) findViewById(R.id.trainingPhrase);
+        reader = new Reader(this);
+        stdc= new StudyController(this);
+        Intent intent = getIntent();
+        username = intent.getAction();
+        log.setUsername(username);
         mHandler = new Handler();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
@@ -53,15 +64,7 @@ public class MainActivity extends ActionBarActivity implements MessageApi.Messag
                 .build();
         mGoogleApiClient.connect();
 
-        ttobj=new TextToSpeech(getApplicationContext(),
-                new TextToSpeech.OnInitListener() {
-                    @Override
-                    public void onInit(int status) {
-                        if(status != TextToSpeech.ERROR){
-                            ttobj.setLanguage(Locale.UK);
-                        }
-                    }
-                });
+
 
     }
 
@@ -143,25 +146,99 @@ public class MainActivity extends ActionBarActivity implements MessageApi.Messag
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-
-                    if(message.equals("up")){
-                        ttobj.speak(lastLetter, TextToSpeech.QUEUE_FLUSH, null);
-                        tv.setText(lastLetter);
-                        if(lastLetter.equals("espasso"))
-                            lastLetter=" ";
-                        phrase+=lastLetter;
-                        tv_phrase.setText(phrase);
-                    }else{
-                        ttobj.speak(message, TextToSpeech.QUEUE_FLUSH, null);
-                        tv.setText(message);
-                        lastLetter=message;
+                    letter.setText(reader.getLetter(message));
+                    if(message.equals("up")) {
+                        Log.d(TAG, "UP ADD:" + reader.getPhrase());
+                        phrase.setText(reader.getPhrase());
+                        if(log!=null)
+                            log.addKeystroke(stdc.getPhraseIndex(), reader.lastRead());
                     }
 
                 }
             });
+        }else{
+            if(log!=null) {
+                Touch t = new Touch(message);
+                log.addTouch(t);
+            }
+        }
+    }
+    public void sendMessage(Context context, final String key, final String message){
+        if(mGoogleApiClient == null){
+            mGoogleApiClient = new GoogleApiClient.Builder(context)
+                    .addApi(Wearable.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+            mGoogleApiClient.connect();
+        }
+
+        mGoogleApiClient.connect();
+
+        if (mGoogleApiClient.isConnected()) {
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
+                    for (Node node : nodes.getNodes()) {
+                        MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(
+                                mGoogleApiClient,
+                                node.getId(),
+                                key,
+                                message.getBytes()).await();
+                        if (!result.getStatus().isSuccess()) {
+                            Log.v(TAG, "error");
+                        } else {
+                            Log.v(TAG, "success!! sent to: " + node.getDisplayName());
+                        }
+                    }
+                }
+            }).start();
+        } else {
         }
     }
 
+    private void startTraining() {
+        setContentView(R.layout.study_main);
+        letter = (TextView) findViewById(R.id.letter);
+        phrase = (TextView) findViewById(R.id.phrase);
+        target = (TextView) findViewById(R.id.target);
+
+        log = new Logging(username);
+        next(null);
+        reader.clear();
+
+    }
+
+    public void start(View v){
+        startTraining();
+    }
+    public void next(View v){
+        int index = stdc.getPhraseIndex();
+        final String sentence= stdc.nextPhrase();
+        if(sentence!=null) {
+            reader.read(sentence);
+            log.savePhrase(index,phrase.getText().toString());
+            log.setTargetPhrase(sentence);
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    target.setText(sentence);
+                    phrase.setText("");
+                    reader.clear();
+
+                }
+            });
+            //clear(null);
+        }else{
+            if(index>0) {
+                log.savePhrase(index,phrase.getText().toString());
+                log.closeFile(getApplicationContext(), stdc.getPhraseIndex());
+                finish();
+            }
+        }
+    }
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -177,4 +254,6 @@ public class MainActivity extends ActionBarActivity implements MessageApi.Messag
     public void onPeerDisconnected(Node node) {
 
     }
+
+
 }
