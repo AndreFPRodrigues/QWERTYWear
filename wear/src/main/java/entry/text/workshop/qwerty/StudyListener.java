@@ -29,11 +29,12 @@ import java.io.File;
  */
 public class StudyListener extends WearableListenerService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
+   public static String ACTION_ZIPPED_FILES = "/logfile";
 
-
-    public static String ACTION_ZIPPED_FILES = "/logfile";
-
-
+    public static final String LOG = "debug";
+    public static final String IOLOG = "IOLog";
+    public static final String TO_READ = "toRead";
+    public static final String TO_WRITE = "toWrite";
 
     private GoogleApiClient mGoogleApiClient;
     private String TAG = "teste";

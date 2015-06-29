@@ -1,4 +1,4 @@
-package entry.text.workshop.qwerty;
+package entry.text.workshop.qwerty.qwerty;
 
 import android.graphics.Rect;
 import android.support.wearable.view.WatchViewStub;

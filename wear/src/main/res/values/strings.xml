@@ -6,4 +6,9 @@
     <string name="log">Log Event</string>
     <string name="syncInfo">Tap together to synchronise</string>
     <string name="syncText">Synchronise</string>
+    <string name="title_activity_type_in_braille">TypeInBraille</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">Brairty</string>
 </resources>

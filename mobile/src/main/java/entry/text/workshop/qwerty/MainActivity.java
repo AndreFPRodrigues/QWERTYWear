@@ -29,7 +29,11 @@ public class MainActivity extends ActionBarActivity implements  MessageApi.Messa
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
-    private final String TO_READ="toRead";
+    public static final String IOLOG = "IOLog";
+    public static final String TO_READ = "toRead";
+    public static final String TO_WRITE = "toWrite";
+    public static final String LOG = "debug";
+
 
     public static String ACTION_ZIPPED_FILES = "/logfile";
     private static final long TIMEOUT_MS = 10000;
@@ -55,7 +59,6 @@ public class MainActivity extends ActionBarActivity implements  MessageApi.Messa
         stdc= new StudyController(this);
         Intent intent = getIntent();
         username = intent.getAction();
-        log.setUsername(username);
         mHandler = new Handler();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
@@ -142,26 +145,49 @@ public class MainActivity extends ActionBarActivity implements  MessageApi.Messa
     @Override
     public void onMessageReceived(final MessageEvent messageEvent) {
         final String message = new String(messageEvent.getData());
+
         if(messageEvent.getPath().contains(TO_READ)) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     letter.setText(reader.getLetter(message));
-                    if(message.equals("up")) {
-                        Log.d(TAG, "UP ADD:" + reader.getPhrase());
-                        phrase.setText(reader.getPhrase());
-                        if(log!=null)
-                            log.addKeystroke(stdc.getPhraseIndex(), reader.lastRead());
-                    }
 
                 }
             });
         }else{
-            if(log!=null) {
-                Touch t = new Touch(message);
-                log.addTouch(t);
+            if(messageEvent.getPath().contains(IOLOG)) {
+                if (log != null) {
+                    Touch t = new Touch(message);
+                    log.addTouch(t);
+                }
+            }else{
+                if(messageEvent.getPath().contains(TO_WRITE)){
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            letter.setText(reader.getLetter(message));
+                            write();
+                        }
+                    });
+                }else{
+                    if(messageEvent.getPath().contains(LOG)){
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                letter.setText(reader.decodeLog(message));
+                            }
+                        });
+                    }
+                }
             }
         }
+    }
+
+    private void write(){
+        reader.writeLetter();
+        phrase.setText(reader.getPhrase());
+        if(log!=null)
+            log.addKeystroke(stdc.getPhraseIndex(), reader.lastRead());
     }
     public void sendMessage(Context context, final String key, final String message){
         if(mGoogleApiClient == null){
@@ -188,7 +214,7 @@ public class MainActivity extends ActionBarActivity implements  MessageApi.Messa
                                 key,
                                 message.getBytes()).await();
                         if (!result.getStatus().isSuccess()) {
-                            Log.v(TAG, "error");
+                            Log.v(TAG, "errorr");
                         } else {
                             Log.v(TAG, "success!! sent to: " + node.getDisplayName());
                         }

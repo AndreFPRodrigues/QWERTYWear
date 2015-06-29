@@ -1,34 +1,20 @@
-package entry.text.workshop.qwerty;
+package entry.text.workshop.qwerty.qwerty;
 
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.wearable.MessageApi;
-import com.google.android.gms.wearable.MessageEvent;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
-import com.google.android.gms.wearable.Wearable;
-
-import java.util.Collection;
-import java.util.HashSet;
+import entry.text.workshop.qwerty.R;
+import entry.text.workshop.qwerty.StudyListener;
 
 
-public class MainActivity extends Activity {
+public class QWERTYMain extends Activity {
 
-    private final String TO_READ = "toRead";
-    private final String IOLOG = "IOLog";
 
     private EditText editText;
     private StudyListener sl;
@@ -38,16 +24,12 @@ public class MainActivity extends Activity {
     private String lastLetter;
     private String phrase;
 
-    private static String IOLog = "EventLog";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-       // mEventLogger = new Logger(IOLog,50,System.currentTimeMillis(),Logger.FileFormat.txt);
-
         sl = new StudyListener();
-       // sl.setStudyListener(mEventLogger);
         Log.d("teste", "INIT");
         phrase = "";
         lastLetter="";
@@ -71,22 +53,22 @@ public class MainActivity extends Activity {
 
 
                        // Log.d("teste", motionEvent.toString());
-                        sl.sendMessage(getApplicationContext(), IOLOG,motionEvent.getX() + "," +motionEvent.getY() + "," + motionEvent.getEventTime()+","+ motionEvent.getPressure() + ","+motionEvent.getSize() + ","+motionEvent.getAction() );
+                        sl.sendMessage(getApplicationContext(), StudyListener.IOLOG,motionEvent.getX() + "," +motionEvent.getY() + "," + motionEvent.getEventTime()+","+ motionEvent.getPressure() + ","+motionEvent.getSize() + ","+motionEvent.getAction() );
                         switch (motionEvent.getAction()) {
                             case MotionEvent.ACTION_DOWN:
                                 lastLetter = kq.getCharacter((int) motionEvent.getX(), (int) motionEvent.getY());
-                                sl.sendMessage(getApplicationContext(), TO_READ, lastLetter);
+                                sl.sendMessage(getApplicationContext(), StudyListener.TO_READ, lastLetter);
                                 break;
                             case MotionEvent.ACTION_MOVE:
                                 String letter = kq.getCharacter((int) motionEvent.getX(), (int) motionEvent.getY());
                                 if (!lastLetter.equals(letter)) {
                                     lastLetter = letter;
-                                    sl.sendMessage(getApplicationContext(), TO_READ, lastLetter);
+                                    sl.sendMessage(getApplicationContext(), StudyListener.TO_READ, lastLetter);
                                 }
                                 break;
                             case MotionEvent.ACTION_UP:
                                 if (!lastLetter.equals("")) {
-                                    sl.sendMessage(getApplicationContext(), TO_READ, "up");
+                                    sl.sendMessage(getApplicationContext(), StudyListener.TO_WRITE, lastLetter);
                                     if(lastLetter.equals("espasso"))
                                         lastLetter=" ";
                                     phrase += lastLetter;
@@ -103,6 +85,13 @@ public class MainActivity extends Activity {
         });
 
 
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
     }
 
     @Override
