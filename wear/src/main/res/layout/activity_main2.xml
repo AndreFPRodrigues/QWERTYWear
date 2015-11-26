@@ -8,22 +8,51 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical|center_horizontal">
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center_horizontal|center_vertical"
+        android:id="@+id/linearLayout">
 
-        <Button
+
+
+        <!--
+       <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="QWERTY"
+            android:text="Go"
             android:id="@+id/button"
             android:onClick="qwerty" />
-
         <Button
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="Type Braille"
+             android:id="@+id/button2"
+             android:onClick="typeInBraille" /> -->
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Type Braille"
-            android:id="@+id/button2"
-            android:onClick="typeInBraille" />
+            android:text="New Text"
+            android:id="@+id/tv1"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone" />
+
+        <NumberPicker
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/numberPicker"
+            android:layout_gravity="center_horizontal" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Adapt"
+            android:textOn="Adapt"
+            android:textOff="Adapt"
+            android:visibility="gone"
+            android:id="@+id/toggleButton"
+            android:layout_gravity="center_horizontal|center_vertical" />
+
     </LinearLayout>
+
 </RelativeLayout>

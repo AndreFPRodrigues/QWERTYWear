@@ -21,33 +21,31 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 
-public class MainActivity extends ActionBarActivity implements  MessageApi.MessageListener, GoogleApiClient.ConnectionCallbacks, NodeApi.NodeListener, GoogleApiClient.OnConnectionFailedListener {
-    private Handler mHandler;
-    private TextView letter;
-    private TextView phrase;
-    private TextView target;
-
-    private GoogleApiClient mGoogleApiClient;
-    private boolean mResolvingError = false;
+public class MainActivity extends ActionBarActivity implements MessageApi.MessageListener, GoogleApiClient.ConnectionCallbacks, NodeApi.NodeListener, GoogleApiClient.OnConnectionFailedListener {
     public static final String IOLOG = "IOLog";
     public static final String TO_READ = "toRead";
     public static final String TO_WRITE = "toWrite";
+    public static final String INIT = "init";
     public static final String LOG = "debug";
-
-
-    public static String ACTION_ZIPPED_FILES = "/logfile";
     private static final long TIMEOUT_MS = 10000;
     private static final String TAG = "QWERTY";
-    private  String username;
-    private Reader reader;
-    private StudyController stdc;
-    private Logging log;
-
     /**
      * Request code for launching the Intent to resolve Google Play services errors.
      */
     private static final int REQUEST_RESOLVE_ERROR = 1000;
-
+    public static String ACTION_ZIPPED_FILES = "/logfile";
+    private Handler mHandler;
+    private TextView letter;
+    private TextView phrase;
+    private TextView target;
+    private GoogleApiClient mGoogleApiClient;
+    private boolean mResolvingError = false;
+    private String username;
+    private Reader reader;
+    private StudyController stdc;
+    private Logging log;
+    int keyboard;
+    boolean adapt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +54,7 @@ public class MainActivity extends ActionBarActivity implements  MessageApi.Messa
         letter = (TextView) findViewById(R.id.textv);
         phrase = (TextView) findViewById(R.id.trainingPhrase);
         reader = new Reader(this);
-        stdc= new StudyController(this);
+        stdc = new StudyController(this);
         Intent intent = getIntent();
         username = intent.getAction();
         mHandler = new Handler();
@@ -66,7 +64,6 @@ public class MainActivity extends ActionBarActivity implements  MessageApi.Messa
                 .addOnConnectionFailedListener(this)
                 .build();
         mGoogleApiClient.connect();
-
 
 
     }
@@ -144,53 +141,67 @@ public class MainActivity extends ActionBarActivity implements  MessageApi.Messa
 
     @Override
     public void onMessageReceived(final MessageEvent messageEvent) {
+        final long time = System.currentTimeMillis();
         final String message = new String(messageEvent.getData());
 
-        if(messageEvent.getPath().contains(TO_READ)) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    letter.setText(reader.getLetter(message));
+        if (messageEvent.getPath().contains(INIT)) {
+            String []s= message.split(",");
+             keyboard = Integer.parseInt(s[0]);
+             adapt = Boolean.parseBoolean(s[1]);
 
-                }
-            });
-        }else{
-            if(messageEvent.getPath().contains(IOLOG)) {
-                if (log != null) {
-                    Touch t = new Touch(message);
-                    log.addTouch(t);
-                }
-            }else{
-                if(messageEvent.getPath().contains(TO_WRITE)){
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            letter.setText(reader.getLetter(message));
-                            write();
-                        }
-                    });
-                }else{
-                    if(messageEvent.getPath().contains(LOG)){
+        } else {
+            if (messageEvent.getPath().contains(TO_READ)) {
+                final String read = reader.getLetter(message);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        letter.setText( read );
+
+                    }
+                });
+            } else {
+                if (messageEvent.getPath().contains(IOLOG)) {
+                    if (log != null) {
+                        Touch t = new Touch(message,time);
+                        log.addTouch(t);
+                    }
+                } else {
+                    if (messageEvent.getPath().contains(TO_WRITE)) {
+                        final String written = reader.getLetter(message);
+
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                letter.setText(reader.decodeLog(message));
+
+                                letter.setText(written );
+                                write();
                             }
                         });
+                    } else {
+                        if (messageEvent.getPath().contains(LOG)) {
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    letter.setText(reader.decodeLog(message));
+                                }
+                            });
+                        }
                     }
                 }
             }
         }
     }
 
-    private void write(){
+    private void write() {
         reader.writeLetter();
         phrase.setText(reader.getPhrase());
-        if(log!=null)
+        if (log != null)
             log.addKeystroke(stdc.getPhraseIndex(), reader.lastRead());
     }
-    public void sendMessage(Context context, final String key, final String message){
-        if(mGoogleApiClient == null){
+
+    public void sendMessage(Context context, final String key, final String message) {
+        if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(context)
                     .addApi(Wearable.API)
                     .addConnectionCallbacks(this)
@@ -232,20 +243,23 @@ public class MainActivity extends ActionBarActivity implements  MessageApi.Messa
         target = (TextView) findViewById(R.id.target);
 
         log = new Logging(username);
+        log.init(keyboard, adapt);
+
         next(null);
         reader.clear();
 
     }
 
-    public void start(View v){
+    public void start(View v) {
         startTraining();
     }
-    public void next(View v){
+
+    public void next(View v) {
         int index = stdc.getPhraseIndex();
-        final String sentence= stdc.nextPhrase();
-        if(sentence!=null) {
+        final String sentence = stdc.nextPhrase();
+        if (sentence != null) {
             reader.read(sentence);
-            log.savePhrase(index,phrase.getText().toString());
+            log.savePhrase(index, phrase.getText().toString());
             log.setTargetPhrase(sentence);
             mHandler.post(new Runnable() {
                 @Override
@@ -257,9 +271,9 @@ public class MainActivity extends ActionBarActivity implements  MessageApi.Messa
                 }
             });
             //clear(null);
-        }else{
-            if(index>0) {
-                log.savePhrase(index,phrase.getText().toString());
+        } else {
+            if (index > 0) {
+                log.savePhrase(index, phrase.getText().toString());
                 log.closeFile(getApplicationContext(), stdc.getPhraseIndex());
                 finish();
             }

@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 
 public class Username extends ActionBarActivity {
@@ -40,11 +41,14 @@ public class Username extends ActionBarActivity {
 
 
     public void start(View v) {
+
         String name = ((EditText) findViewById(R.id.name)).getText().toString();
         Intent i = new Intent(this, MainActivity.class);
         i.setAction(name);
         startActivity(i);
         finish();
+
+       // ((EditText) findViewById(R.id.name)).setText(System.currentTimeMillis() + "", TextView.BufferType.EDITABLE);
     }
 
 }

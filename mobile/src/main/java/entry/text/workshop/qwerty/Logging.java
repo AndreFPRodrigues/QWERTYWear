@@ -23,6 +23,8 @@ public class Logging {
     private ArrayList<Touch> touches;
 
     private String username;
+    private String keyboard;
+    private boolean adapt;
 
     private ArrayList<Phrase> phrasesLog;
     private long endPhrase = 0;
@@ -91,7 +93,7 @@ public class Logging {
 
     public void closeFile(Context c, int phraseNumber) {
         long totalTime = System.currentTimeMillis() - endPhrase;
-        XMLHandler.saveToXml(c, phrasesLog, phraseNumber, totalTime, initPhrase, username);
+        XMLHandler.saveToXml(c, phrasesLog, phraseNumber, totalTime, initPhrase, username, keyboard, adapt);
 
         writeTouchesToFile();
 
@@ -116,4 +118,21 @@ public class Logging {
     }
 
 
+    public void init(int keyboard, boolean adapt) {
+        switch(keyboard) {
+            case 0:
+                this.keyboard = "HUGE";
+                break;
+            case 1:
+                this.keyboard = "LARGE";
+                break;
+            case 2:
+                this.keyboard = "MEDIUM";
+                break;
+            case 3:
+                this.keyboard = "SMALL";
+                break;
+        }
+        this.adapt = adapt;
+    }
 }

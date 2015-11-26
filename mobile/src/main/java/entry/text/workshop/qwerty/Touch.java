@@ -10,8 +10,9 @@ public class Touch implements Comparable<Touch> {
     private float pressure;
     private float size;
     private int type;
+    private long delay;
 
-public Touch(String s){
+public Touch(String s, long l){
     String [] split =s.split(",");
     x=Float.parseFloat(split[0]);
     y=Float.parseFloat(split[1]);
@@ -19,10 +20,11 @@ public Touch(String s){
     pressure=Float.parseFloat(split[3]);
     size=Float.parseFloat(split[4]);
     type=Integer.parseInt(split[5]);
+    delay = l-(Long.parseLong(split[6]));
 }
 
     public String toJSON(){
-        return "{\"x\":"+x+" , \"y\":"+y+", \"time\":"+time+", \"pressure\":"+pressure+" ,\"size\":"+size+", \"type\":"+type+"}";
+        return "{\"x\":"+x+" , \"y\":"+y+", \"time\":"+time+", \"pressure\":"+pressure+" ,\"size\":"+size+", \"type\":"+type+ ", \"delay\":"+delay+ "}";
     }
 
     public int getX() {

@@ -21,6 +21,9 @@ public class Reader {
     private final static int EMPTY = 0;
     private final static int NEXT_CHAR = 4;
 
+    private long lastWrite;
+    private final long FLUSH_THRESHOLD=500;
+
     public Reader(Context c){
         phrase="";
         lastLetter="";
@@ -36,16 +39,27 @@ public class Reader {
     }
 
     public String getLetter(String message){
-            ttobj.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+            int type = TextToSpeech.QUEUE_FLUSH;
+            if(lastWrite-System.currentTimeMillis()>FLUSH_THRESHOLD)
+                type=TextToSpeech.QUEUE_ADD;
+            ttobj.speak(message,type , null);
             lastLetter=message;
             return lastLetter;
     }
 
     public String writeLetter(){
+            lastWrite = System.currentTimeMillis();
             ttobj.speak(lastLetter, TextToSpeech.QUEUE_FLUSH, null);
             if(lastLetter.equals("espasso"))
                 lastLetter=" ";
-            phrase+=lastLetter;
+            if(lastLetter.equals("apagar")){
+                lastLetter="<<";
+                if(phrase.length()>0) {
+                    phrase = phrase.substring(0, phrase.length() - 1);
+                }
+            }else {
+                phrase += lastLetter;
+            }
             return lastLetter;
 
     }
@@ -55,7 +69,11 @@ public class Reader {
     }
 
     public void read(String toRead) {
-        ttobj.speak(toRead, TextToSpeech.QUEUE_FLUSH, null);
+        int type = TextToSpeech.QUEUE_FLUSH;
+
+        if(lastWrite-System.currentTimeMillis()<FLUSH_THRESHOLD)
+                type=TextToSpeech.QUEUE_ADD;
+        ttobj.speak(toRead, type, null);
 
     }
 

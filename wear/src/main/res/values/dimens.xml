@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="spaceWidth">10px</dimen>
     <dimen name="menuHeight">5px</dimen>
-    <dimen name="keyWidth">30dp</dimen>
-    <dimen name="keyHeight">40dp</dimen>
+
+
     <dimen name="marginL">10dp</dimen>
     <dimen name="marginAL">2px</dimen>
     <dimen name="marginBot">30dp</dimen>
+
+
+    <!-- Huge :)-->
+    <dimen name="keyWidthHuge">19dp</dimen>
+    <dimen name="keyHeightHuge">19dp</dimen>
+    <dimen name="spaceWidthHuge">95dp</dimen>
+    <dimen name="spaceBetweenHuge">0dp</dimen>
+
+    <!-- Large-->
+    <dimen name="spaceWidth">90dp</dimen>
+    <dimen name="keyWidth">17.5dp</dimen>
+    <dimen name="keyHeight">17.5dp</dimen>
+    <dimen name="spaceBetween">0dp</dimen>
+
+    <!-- Medium-->
+    <dimen name="spaceWidthMedium">72dp</dimen>
+    <dimen name="keyWidthMedium">14.5dp</dimen>
+    <dimen name="keyHeightMedium">14.5dp</dimen>
+    <dimen name="spaceBetweenMedium">0dp</dimen>
+
+    <!-- Small-->
+    <dimen name="spaceWidthSmall">50dp</dimen>
+    <dimen name="keyWidthSmall">10dp</dimen>
+    <dimen name="keyHeightSmall">10dp</dimen>
+    <dimen name="spaceBetweenSmall">0dp</dimen>
+
+
+
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>

@@ -50,8 +50,11 @@ public class XMLHandler {
         }
     }
 
-    public static void saveToXml(Context context, ArrayList<Phrase> phrasesLog, int numberOfPhrases, long totalTime, long startTime, String username) {
-        writeToFile(writeXml(phrasesLog, numberOfPhrases, totalTime, startTime), username+"_tePhrases");
+    public static void saveToXml(Context context, ArrayList<Phrase> phrasesLog, int numberOfPhrases, long totalTime, long startTime, String username, String keyboard, boolean adapt) {
+        String ad="";
+        if(adapt)
+            ad="_A";
+        writeToFile(writeXml(phrasesLog, numberOfPhrases, totalTime, startTime, keyboard, adapt), username+"_"+keyboard+ad +"_tePhrases");
         writeToFile(writeXmlKey(phrasesLog), username+"teKeystrokes" );
     }
     private static String writeXmlKey(ArrayList<Phrase> phrasesLog){
@@ -88,16 +91,19 @@ public class XMLHandler {
             throw new RuntimeException(e);
         }
     }
-    private static String writeXml(ArrayList<Phrase> phrasesLog, int numberOfPhrases, long totalTime, long startTime) {
+    private static String writeXml(ArrayList<Phrase> phrasesLog, int numberOfPhrases, long totalTime, long startTime, String keyboard, boolean adapt) {
         XmlSerializer serializer = Xml.newSerializer();
         StringWriter writer = new StringWriter();
         try {
             serializer.setOutput(writer);
             serializer.startDocument("UTF-8", true);
             serializer.startTag("", "task");
-            serializer.attribute("", "totalTime", ""+totalTime);
+            serializer.attribute("", "totalTime", "" + totalTime);
             serializer.attribute("", "numberOfPhrases", ""+numberOfPhrases);
             serializer.attribute("", "init_timestamp", startTime + "");
+            serializer.attribute("", "keyboard", keyboard+"");
+            serializer.attribute("", "adapt", adapt +"");
+
             serializer.startTag("", "phrases");
             int i = -1;
             for (Phrase phrase : phrasesLog) {

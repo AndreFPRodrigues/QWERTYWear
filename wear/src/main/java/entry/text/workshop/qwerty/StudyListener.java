@@ -35,6 +35,7 @@ public class StudyListener extends WearableListenerService implements GoogleApiC
     public static final String IOLOG = "IOLog";
     public static final String TO_READ = "toRead";
     public static final String TO_WRITE = "toWrite";
+    public static final String INIT = "init";
 
     private GoogleApiClient mGoogleApiClient;
     private String TAG = "teste";
@@ -86,7 +87,7 @@ public class StudyListener extends WearableListenerService implements GoogleApiC
         mGoogleApiClient.connect();
 
         if (mGoogleApiClient.isConnected()) {
-            Log.v(TAG, "Is Connected");
+           // Log.v(TAG, "Is Connected");
 
             new Thread(new Runnable() {
                 @Override
@@ -101,9 +102,10 @@ public class StudyListener extends WearableListenerService implements GoogleApiC
                         if (!result.getStatus().isSuccess()) {
                             Log.v(TAG, "error");
                         } else {
-                            Log.v(TAG, "success!! sent to: " + node.getDisplayName());
+                          //  Log.v(TAG, "success!! sent to: " + node.getDisplayName());
                         }
                     }
+
                 }
             }).start();
         } else {
